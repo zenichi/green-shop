@@ -1,8 +1,11 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"net/http"
+	"os"
+	"os/signal"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -33,9 +36,26 @@ func main() {
 		IdleTimeout:  120 * time.Second, // max time for connections Keep-Alive
 	}
 
-	// run HttpServer
-	err := srv.ListenAndServe()
-	if err != nil {
-		log.WithError(err).Error("server stopped")
-	}
+	// run HttpServer async
+	go func() {
+		err := srv.ListenAndServe()
+		if err != nil {
+			log.WithError(err).Error("server stopped")
+			os.Exit(1) // non zero means error
+		}
+	}()
+
+	// track os signals to gracefuly shutdown the server
+	idleConnsClosed := make(chan os.Signal)
+	signal.Notify(idleConnsClosed, os.Interrupt)
+	signal.Notify(idleConnsClosed, os.Kill)
+
+	// wait until os.signal received
+	sig := <-idleConnsClosed
+	log.WithField("signal", sig).Info("gracefully shutting down server")
+
+	// wait until current operations complete and shutdown the server
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
+	defer cancel()
+	srv.Shutdown(ctx)
 }
