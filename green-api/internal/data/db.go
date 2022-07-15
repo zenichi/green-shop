@@ -19,6 +19,16 @@ func (db *ProductDB) GetProducts() Products {
 	return internalDB
 }
 
+func (db *ProductDB) AddProduct(p *Product) {
+	p.ID = getNextId()
+	internalDB = append(internalDB, p)
+}
+
+func getNextId() int {
+	last := internalDB[len(internalDB)-1]
+	return last.ID + 1
+}
+
 var internalDB = Products{
 	&Product{
 		ID:          1,

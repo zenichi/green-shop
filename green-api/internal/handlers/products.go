@@ -25,6 +25,11 @@ func (ph *Product) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if r.Method == http.MethodPost {
+		ph.addProduct(rw, r)
+		return
+	}
+
 	// catch all
 	// if no method is satisfied return an error
 	rw.WriteHeader(http.StatusMethodNotAllowed)
@@ -43,4 +48,17 @@ func (ph *Product) getProducts(rw http.ResponseWriter, r *http.Request) {
 		ph.log.WithError(err).Error("Unable to serialize to JSON")
 		http.Error(rw, "Unable to serialize products", http.StatusInternalServerError)
 	}
+}
+
+func (ph *Product) addProduct(rw http.ResponseWriter, r *http.Request) {
+	p := &data.Product{}
+
+	d := json.NewDecoder(r.Body)
+	err := d.Decode(p)
+	if err != nil {
+		ph.log.WithError(err).Error("Unable to deserialize from JSON")
+		http.Error(rw, "Unable to deserialize product", http.StatusBadRequest)
+	}
+
+	ph.data.AddProduct(p)
 }
