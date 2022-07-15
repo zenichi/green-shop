@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
+	"github.com/zenichi/green-shop/green-api/internal/data"
 	"github.com/zenichi/green-shop/green-api/internal/handlers"
 )
 
@@ -23,10 +24,13 @@ func main() {
 	// create the handlers
 	m := handlers.NewApiMiddleware(log)
 	ih := handlers.NewInfo(log)
+	pd := data.NewProductDB(log)
+	ph := handlers.NewProduct(log, pd)
 
 	// create the new ServeMux and register handler
 	mux := http.NewServeMux()
-	mux.Handle("/info", m.WithLogging((ih)))
+	mux.Handle("/info", m.WithLogging(ih))
+	mux.Handle("/products", m.WithLogging(ph))
 
 	// create the HttpServer
 	srv := http.Server{
