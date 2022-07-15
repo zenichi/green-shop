@@ -21,11 +21,12 @@ func main() {
 	log.WithField("addr", *serverAddress).Info("initializing server")
 
 	// create the handlers
+	m := handlers.NewApiMiddleware(log)
 	ih := handlers.NewInfo(log)
 
 	// create the new ServeMux and register handler
 	mux := http.NewServeMux()
-	mux.Handle("/info", ih)
+	mux.Handle("/info", m.WithLogging((ih)))
 
 	// create the HttpServer
 	srv := http.Server{

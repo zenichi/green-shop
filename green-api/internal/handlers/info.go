@@ -22,7 +22,6 @@ func NewInfo(log *logrus.Entry) *Info {
 
 // ServeHTTP is the main entry point for the handler
 func (i *Info) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
-	i.log.WithField("endpoint", r.URL.Path).WithField("method", r.Method).Info("processing request.")
-
+	rw.WriteHeader(http.StatusOK)
 	rw.Write([]byte(fmt.Sprintf("Server time: %v", time.Now())))
 }
