@@ -1,11 +1,11 @@
 package handlers
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/sirupsen/logrus"
 	"github.com/zenichi/green-shop/green-api/internal/data"
+	"github.com/zenichi/green-shop/green-api/internal/utils"
 )
 
 // Product is a handler for products REST API
@@ -42,8 +42,7 @@ func (ph *Product) getProducts(rw http.ResponseWriter, r *http.Request) {
 	res := ph.data.GetProducts()
 
 	// serialize list of products to JSON
-	e := json.NewEncoder(rw)
-	err := e.Encode(res)
+	err := utils.ToJSON(res, rw)
 	if err != nil {
 		ph.log.WithError(err).Error("Unable to serialize to JSON")
 		http.Error(rw, "Unable to serialize products", http.StatusInternalServerError)
@@ -53,8 +52,7 @@ func (ph *Product) getProducts(rw http.ResponseWriter, r *http.Request) {
 func (ph *Product) addProduct(rw http.ResponseWriter, r *http.Request) {
 	p := &data.Product{}
 
-	d := json.NewDecoder(r.Body)
-	err := d.Decode(p)
+	err := utils.FromJSON(p, r.Body)
 	if err != nil {
 		ph.log.WithError(err).Error("Unable to deserialize from JSON")
 		http.Error(rw, "Unable to deserialize product", http.StatusBadRequest)
