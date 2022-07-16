@@ -42,14 +42,17 @@ func (ph *Product) getProducts(rw http.ResponseWriter, r *http.Request) {
 	res, err := ph.data.GetProducts()
 	if err != nil {
 		ph.log.WithError(err).Error("Unable to get products")
-		http.Error(rw, "Unable to get products", http.StatusInternalServerError)
+		// Unexpected error, do not show details to the user
+		genericErrorResponse(rw, http.StatusInternalServerError, "Products are not available.")
+		return
 	}
 
 	// serialize list of products to JSON
 	err = utils.ToJSON(res, rw)
 	if err != nil {
 		ph.log.WithError(err).Error("Unable to serialize to JSON")
-		http.Error(rw, "Unable to serialize products", http.StatusInternalServerError)
+		genericErrorResponse(rw, http.StatusInternalServerError, "Products are not available.")
+		return
 	}
 }
 
@@ -59,7 +62,8 @@ func (ph *Product) addProduct(rw http.ResponseWriter, r *http.Request) {
 	err := utils.FromJSON(p, r.Body)
 	if err != nil {
 		ph.log.WithError(err).Error("Unable to deserialize from JSON")
-		http.Error(rw, "Unable to deserialize product", http.StatusBadRequest)
+		genericErrorResponse(rw, http.StatusBadRequest, "Product has invalid structure.")
+		return
 	}
 
 	ph.data.AddProduct(p)
