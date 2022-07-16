@@ -1,6 +1,9 @@
 package data
 
-import "github.com/sirupsen/logrus"
+import (
+	"github.com/sirupsen/logrus"
+	protos "github.com/zenichi/green-api/pricing-service/pkg/protos/rates"
+)
 
 type ProductData interface {
 	GetProducts() Products
@@ -9,12 +12,13 @@ type ProductData interface {
 
 // ProductDB defines methods available on product data
 type ProductDB struct {
-	log *logrus.Entry
+	log    *logrus.Entry
+	client protos.RateServiceClient
 }
 
 // NewProductDB creates the DB access handler
-func NewProductDB(log *logrus.Entry) *ProductDB {
-	return &ProductDB{log}
+func NewProductDB(log *logrus.Entry, client protos.RateServiceClient) *ProductDB {
+	return &ProductDB{log, client}
 }
 
 func (db *ProductDB) GetProducts() Products {

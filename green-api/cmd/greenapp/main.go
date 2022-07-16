@@ -9,11 +9,14 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
+	protos "github.com/zenichi/green-api/pricing-service/pkg/protos/rates"
 	"github.com/zenichi/green-shop/green-api/internal/data"
 	"github.com/zenichi/green-shop/green-api/internal/handlers"
+	"google.golang.org/grpc"
 )
 
 var serverAddress = flag.String("green-api-addr", "localhost:9081", "the address for the server to listen on, in the form 'host:port'")
+var clientAddress = flag.String("green-pricing-client-addr", "localhost:9085", "the address for the grpc server to connect")
 
 func main() {
 	flag.Parse()
@@ -21,10 +24,18 @@ func main() {
 	log := logrus.WithField("app", "green-api")
 	log.WithField("addr", *serverAddress).Info("initializing server")
 
+	// create rates client for grpc server
+	conn, err := grpc.Dial(*clientAddress, grpc.WithInsecure())
+	if err != nil {
+		log.Panic(err)
+	}
+	defer conn.Close()
+	cl := protos.NewRateServiceClient(conn)
+
 	// create the handlers
 	m := handlers.NewApiMiddleware(log)
 	ih := handlers.NewInfo(log)
-	pd := data.NewProductDB(log)
+	pd := data.NewProductDB(log, cl)
 	ph := handlers.NewProduct(log, pd)
 
 	// create the new ServeMux and register handler
