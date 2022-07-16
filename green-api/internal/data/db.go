@@ -1,31 +1,51 @@
 package data
 
 import (
+	"context"
+
 	"github.com/sirupsen/logrus"
 	protos "github.com/zenichi/green-api/pricing-service/pkg/protos/rates"
 )
 
 type ProductData interface {
-	GetProducts() Products
+	GetProducts() (Products, error)
 	AddProduct(p *Product)
 }
 
 // ProductDB defines methods available on product data
 type ProductDB struct {
-	log    *logrus.Entry
-	client protos.RateServiceClient
+	log   *logrus.Entry
+	rates protos.RateServiceClient
 }
 
 // NewProductDB creates the DB access handler
-func NewProductDB(log *logrus.Entry, client protos.RateServiceClient) *ProductDB {
-	return &ProductDB{log, client}
+func NewProductDB(log *logrus.Entry, rates protos.RateServiceClient) *ProductDB {
+	return &ProductDB{log, rates}
 }
 
-func (db *ProductDB) GetProducts() Products {
+func (db *ProductDB) GetProducts() (Products, error) {
 	log := db.log.WithField("layer", "data")
 	log.Info("get products")
 
-	return internalDB
+	ctx := context.Background()
+	d := &protos.RateRequest{
+		FromCurrency: "USD",
+		ToCurrency:   "EUR",
+	}
+	rr, err := db.rates.GetRate(ctx, d)
+	if err != nil {
+		log.WithError(err).Info("can not get rates")
+		return nil, err
+	}
+
+	pl := Products{}
+	for _, p := range internalDB {
+		pc := *p
+		pc.Price = pc.Price * rr.Rate
+		pl = append(pl, &pc)
+	}
+
+	return pl, nil
 }
 
 func (db *ProductDB) AddProduct(p *Product) {

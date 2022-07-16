@@ -25,8 +25,8 @@ func runRequest(t *testing.T, srv http.Handler, r *http.Request) *httptest.Respo
 // InMemoryProductData implements data.ProductData interface
 type InMemoryProductData struct{}
 
-func (d *InMemoryProductData) GetProducts() data.Products {
-	return data.Products{&data.Product{ID: 4}}
+func (d *InMemoryProductData) GetProducts() (data.Products, error) {
+	return data.Products{&data.Product{ID: 4}}, nil
 }
 func (d *InMemoryProductData) AddProduct(p *data.Product) {}
 

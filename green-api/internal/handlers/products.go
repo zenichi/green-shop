@@ -39,10 +39,14 @@ func (ph *Product) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 
 func (ph *Product) getProducts(rw http.ResponseWriter, r *http.Request) {
 	// fetch the products from the datastore
-	res := ph.data.GetProducts()
+	res, err := ph.data.GetProducts()
+	if err != nil {
+		ph.log.WithError(err).Error("Unable to get products")
+		http.Error(rw, "Unable to get products", http.StatusInternalServerError)
+	}
 
 	// serialize list of products to JSON
-	err := utils.ToJSON(res, rw)
+	err = utils.ToJSON(res, rw)
 	if err != nil {
 		ph.log.WithError(err).Error("Unable to serialize to JSON")
 		http.Error(rw, "Unable to serialize products", http.StatusInternalServerError)
