@@ -6,7 +6,11 @@ import (
 	"os"
 
 	"github.com/sirupsen/logrus"
+	"github.com/zenichi/green-api/pricing-service/internal/server"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
+
+	protos "github.com/zenichi/green-api/pricing-service/internal/protos/rates"
 )
 
 var serverAddress = flag.String("pricing-service-addr", "localhost:9085", "the address for the server")
@@ -19,6 +23,16 @@ func main() {
 
 	// initializing new grpc server with insecure to allow http connections (on localhost)
 	gs := grpc.NewServer()
+
+	// create an instance of rates server
+	rs := server.NewRates(log)
+
+	// register rate service server
+	protos.RegisterRateServiceServer(gs, rs)
+
+	// register the reflection service which allows clients to determine the methods
+	// for this gRPC service
+	reflection.Register(gs)
 
 	// create a tcp socket for inbound server connections
 	l, err := net.Listen("tcp", *serverAddress)

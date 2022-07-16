@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+option go_package = "github.com/zenichi/green-api/pricing-service/rates";
+
+service RateService {
+    // GetRate returns exchange rate for the given currencies
+    rpc GetRate(RateRequest) returns (RateResponse);
+}
+
+message RateRequest {
+    string FromCurrency = 1;
+    string ToCurrency = 2;
+}
+
+message RateResponse {
+    double Rate = 1;
+}
