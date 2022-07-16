@@ -2,6 +2,11 @@ package data
 
 import "github.com/sirupsen/logrus"
 
+type ProductData interface {
+	GetProducts() Products
+	AddProduct(p *Product)
+}
+
 // ProductDB defines methods available on product data
 type ProductDB struct {
 	log *logrus.Entry

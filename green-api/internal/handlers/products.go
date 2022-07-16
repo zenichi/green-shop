@@ -11,11 +11,11 @@ import (
 // Product is a handler for products REST API
 type Product struct {
 	log  *logrus.Entry
-	data *data.ProductDB
+	data data.ProductData
 }
 
 // NewProduct creates the new Product handler with the given logger and db access
-func NewProduct(log *logrus.Entry, data *data.ProductDB) *Product {
+func NewProduct(log *logrus.Entry, data data.ProductData) *Product {
 	return &Product{log, data}
 }
 
