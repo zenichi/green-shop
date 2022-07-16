@@ -10,7 +10,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 
-	protos "github.com/zenichi/green-api/pricing-service/internal/protos/rates"
+	protos "github.com/zenichi/green-api/pricing-service/pkg/protos/rates"
 )
 
 var serverAddress = flag.String("pricing-service-addr", "localhost:9085", "the address for the server")
