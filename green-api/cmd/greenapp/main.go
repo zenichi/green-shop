@@ -36,7 +36,8 @@ func main() {
 	m := handlers.NewApiMiddleware(log)
 	ih := handlers.NewInfo(log)
 	pd := data.NewProductDB(log, cl)
-	ph := handlers.NewProduct(log, pd)
+	v := data.NewValidator()
+	ph := handlers.NewProduct(log, pd, v)
 
 	// create the new ServeMux and register handler
 	mux := http.NewServeMux()

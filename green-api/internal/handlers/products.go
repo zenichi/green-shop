@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/sirupsen/logrus"
 	"github.com/zenichi/green-shop/green-api/internal/data"
@@ -12,11 +13,12 @@ import (
 type Product struct {
 	log  *logrus.Entry
 	data data.ProductData
+	v    *data.Validator
 }
 
 // NewProduct creates the new Product handler with the given logger and db access
-func NewProduct(log *logrus.Entry, data data.ProductData) *Product {
-	return &Product{log, data}
+func NewProduct(log *logrus.Entry, data data.ProductData, v *data.Validator) *Product {
+	return &Product{log, data, v}
 }
 
 func (ph *Product) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
@@ -63,6 +65,12 @@ func (ph *Product) addProduct(rw http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		ph.log.WithError(err).Error("Unable to deserialize from JSON")
 		genericErrorResponse(rw, http.StatusBadRequest, "Product has invalid structure.")
+		return
+	}
+
+	errors := ph.v.Validate(p)
+	if len(errors) > 0 {
+		genericErrorResponse(rw, http.StatusBadRequest, strings.Join(errors, ","))
 		return
 	}
 
