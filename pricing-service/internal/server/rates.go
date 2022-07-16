@@ -18,7 +18,8 @@ func NewRates(log *logrus.Entry) *Rates {
 }
 
 // GetRate implements rates.RateServiceServer
-func (c *Rates) GetRate(context.Context, *protos.RateRequest) (*protos.RateResponse, error) {
+func (c *Rates) GetRate(ctx context.Context, r *protos.RateRequest) (*protos.RateResponse, error) {
+	c.log.WithFields(logrus.Fields{"From": r.FromCurrency, "To": r.ToCurrency}).Info("handle request for GetRate")
 
 	return &protos.RateResponse{Rate: 1.3}, nil
 }
