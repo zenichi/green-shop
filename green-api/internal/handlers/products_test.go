@@ -33,9 +33,9 @@ func (d *InMemoryProductData) AddProduct(p *data.Product) {}
 func TestGetProductsAsValidJSON(t *testing.T) {
 	// create dummy store
 	ds := &InMemoryProductData{}
-
+	v := data.NewValidator()
 	// create handler
-	ph := NewProduct(logrus.WithField("context", "tests"), ds)
+	ph := NewProduct(logrus.WithField("context", "tests"), ds, v)
 
 	// run request
 	response := runRequest(t, ph, SimpleGetProductsRequest)
