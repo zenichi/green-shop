@@ -16,3 +16,13 @@ func genericErrorResponse(rw http.ResponseWriter, statusCode int, errMsg string)
 	rw.WriteHeader(statusCode)
 	utils.ToJSON(&errorResponse{Message: errMsg}, rw)
 }
+
+type validationErrors struct {
+	*errorResponse
+	ValidationMessages []string `json:"validationMessages"`
+}
+
+func validationErrorsResponse(rw http.ResponseWriter, errors []string) {
+	rw.WriteHeader(http.StatusUnprocessableEntity)
+	utils.ToJSON(&validationErrors{&errorResponse{"Invalid data"}, errors}, rw)
+}

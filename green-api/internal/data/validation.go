@@ -1,6 +1,30 @@
 package data
 
-import "github.com/go-playground/validator/v10"
+import (
+	"fmt"
+
+	"github.com/go-playground/validator/v10"
+)
+
+type ValidationErrors struct {
+	validator.ValidationErrors
+}
+
+// Errors converts the slice into a string slice
+func (v ValidationErrors) Errors() []string {
+	errs := []string{}
+	for _, f := range v.ValidationErrors {
+		s := fmt.Sprintf(
+			"Key: '%s' Error: Field validation for '%s' failed on the '%s' tag",
+			f.Namespace(),
+			f.Field(),
+			f.Tag(),
+		)
+		errs = append(errs, s)
+	}
+
+	return errs
+}
 
 type Validator struct {
 	validate *validator.Validate
@@ -15,25 +39,7 @@ func NewValidator() *Validator {
 func (v *Validator) Validate(s interface{}) []string {
 	err := v.validate.Struct(s)
 	if err != nil {
-		errors := []string{}
-		for _, err := range err.(validator.ValidationErrors) {
-
-			// Examples from Doc:
-			// fmt.Println(err.Namespace())
-			// fmt.Println(err.Field())
-			// fmt.Println(err.StructNamespace())
-			// fmt.Println(err.StructField())
-			// fmt.Println(err.Tag())
-			// fmt.Println(err.ActualTag())
-			// fmt.Println(err.Kind())
-			// fmt.Println(err.Type())
-			// fmt.Println(err.Value())
-			// fmt.Println(err.Param())
-
-			errors = append(errors, err.Field())
-		}
-
-		return errors
+		return ValidationErrors{err.(validator.ValidationErrors)}.Errors()
 	}
 
 	// validated

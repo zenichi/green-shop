@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"net/http"
-	"strings"
 
 	"github.com/sirupsen/logrus"
 	"github.com/zenichi/green-shop/green-api/internal/data"
@@ -70,7 +69,7 @@ func (ph *Product) addProduct(rw http.ResponseWriter, r *http.Request) {
 
 	errors := ph.v.Validate(p)
 	if len(errors) > 0 {
-		genericErrorResponse(rw, http.StatusBadRequest, strings.Join(errors, ","))
+		validationErrorsResponse(rw, errors)
 		return
 	}
 
