@@ -1,0 +1,2 @@
+protos:
+	protoc --proto_path=internal/protos --go_out=internal/protos/rates --go_opt=paths=source_relative --go-grpc_out=internal/protos/rates --go-grpc_opt=paths=source_relative internal/protos/rates.proto
