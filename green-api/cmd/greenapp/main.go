@@ -8,6 +8,7 @@ import (
 	"os/signal"
 	"time"
 
+	gohandlers "github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 	protos "github.com/zenichi/green-api/pricing-service/pkg/protos/rates"
@@ -55,10 +56,16 @@ func main() {
 	mux.Handle("/products", ph.ValidateProduct(http.HandlerFunc(ph.UpdateProduct))).Methods(http.MethodPut)
 	mux.HandleFunc("/products/{id:[0-9]+}", ph.DeleteProduct).Methods(http.MethodDelete)
 
+	// CORS
+	headersOk := gohandlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Access-Control-Allow-Origin"})
+	originsOk := gohandlers.AllowedOrigins([]string{"*"})
+	methodsOk := gohandlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
+	cors := gohandlers.CORS(headersOk, originsOk, methodsOk)
+
 	// create the HttpServer
 	srv := http.Server{
 		Addr:         *serverAddress,
-		Handler:      mux,
+		Handler:      cors(mux),
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
 		IdleTimeout:  120 * time.Second, // max time for connections Keep-Alive
