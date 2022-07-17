@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -15,7 +16,7 @@ var (
 	SimpleGetProductsRequest = httptest.NewRequest("GET", "/products", nil)
 )
 
-func runRequest(t *testing.T, srv http.Handler, r *http.Request) *httptest.ResponseRecorder {
+func runRequest(t *testing.T, srv http.HandlerFunc, r *http.Request) *httptest.ResponseRecorder {
 	response := httptest.NewRecorder()
 	srv.ServeHTTP(response, r)
 
@@ -25,20 +26,25 @@ func runRequest(t *testing.T, srv http.Handler, r *http.Request) *httptest.Respo
 // InMemoryProductData implements data.ProductData interface
 type InMemoryProductData struct{}
 
-func (d *InMemoryProductData) GetProducts() data.Products {
-	return data.Products{&data.Product{ID: 4}}
+func (d *InMemoryProductData) GetProducts(context.Context, string) (data.Products, error) {
+	return data.Products{&data.Product{ID: 4}}, nil
 }
-func (d *InMemoryProductData) AddProduct(p *data.Product) {}
+func (d *InMemoryProductData) GetProductById(context.Context, int, string) (*data.Product, error) {
+	return nil, nil
+}
+func (d *InMemoryProductData) AddProduct(*data.Product) error    { return nil }
+func (d *InMemoryProductData) UpdateProduct(*data.Product) error { return nil }
+func (d *InMemoryProductData) DeleteProduct(int) error           { return nil }
 
 func TestGetProductsAsValidJSON(t *testing.T) {
 	// create dummy store
 	ds := &InMemoryProductData{}
-
+	v := data.NewValidator()
 	// create handler
-	ph := NewProduct(logrus.WithField("context", "tests"), ds)
+	ph := NewProduct(logrus.WithField("context", "tests"), ds, v)
 
 	// run request
-	response := runRequest(t, ph, SimpleGetProductsRequest)
+	response := runRequest(t, ph.GetProducts, SimpleGetProductsRequest)
 
 	// asserts response
 	assert.Equal(t, response.Code, http.StatusOK, "status should be 200")
