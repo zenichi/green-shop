@@ -20,25 +20,7 @@ func NewProduct(log *logrus.Entry, data data.ProductData, v *data.Validator) *Pr
 	return &Product{log, data, v}
 }
 
-func (ph *Product) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodGet {
-		ph.getProducts(rw, r)
-		return
-	}
-
-	if r.Method == http.MethodPost {
-		ph.addProduct(rw, r)
-		return
-	}
-
-	// catch all
-	// if no method is satisfied return an error
-	rw.WriteHeader(http.StatusMethodNotAllowed)
-	rw.Header().Set("Allow", "GET")
-	rw.Write([]byte("Method is not allowed"))
-}
-
-func (ph *Product) getProducts(rw http.ResponseWriter, r *http.Request) {
+func (ph *Product) GetProducts(rw http.ResponseWriter, r *http.Request) {
 	// fetch the products from the datastore
 	res, err := ph.data.GetProducts()
 	if err != nil {
@@ -59,7 +41,7 @@ func (ph *Product) getProducts(rw http.ResponseWriter, r *http.Request) {
 	rw.WriteHeader(http.StatusOK)
 }
 
-func (ph *Product) addProduct(rw http.ResponseWriter, r *http.Request) {
+func (ph *Product) AddProduct(rw http.ResponseWriter, r *http.Request) {
 	p := &data.Product{}
 
 	err := utils.FromJSON(p, r.Body)

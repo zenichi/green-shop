@@ -8,6 +8,7 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 	protos "github.com/zenichi/green-api/pricing-service/pkg/protos/rates"
 	"github.com/zenichi/green-shop/green-api/internal/data"
@@ -39,10 +40,12 @@ func main() {
 	v := data.NewValidator()
 	ph := handlers.NewProduct(log, pd, v)
 
-	// create the new ServeMux and register handler
-	mux := http.NewServeMux()
-	mux.Handle("/info", m.WithLogging(ih))
-	mux.Handle("/products", m.WithLogging(ph))
+	// create the new router and register handlers
+	mux := mux.NewRouter()
+	mux.Use(m.WithLogging)
+	mux.Handle("/info", ih)
+	mux.HandleFunc("/products", ph.GetProducts).Methods(http.MethodGet)
+	mux.HandleFunc("/products", ph.AddProduct).Methods(http.MethodPost)
 
 	// create the HttpServer
 	srv := http.Server{

@@ -15,7 +15,7 @@ var (
 	SimpleGetProductsRequest = httptest.NewRequest("GET", "/products", nil)
 )
 
-func runRequest(t *testing.T, srv http.Handler, r *http.Request) *httptest.ResponseRecorder {
+func runRequest(t *testing.T, srv http.HandlerFunc, r *http.Request) *httptest.ResponseRecorder {
 	response := httptest.NewRecorder()
 	srv.ServeHTTP(response, r)
 
@@ -38,7 +38,7 @@ func TestGetProductsAsValidJSON(t *testing.T) {
 	ph := NewProduct(logrus.WithField("context", "tests"), ds, v)
 
 	// run request
-	response := runRequest(t, ph, SimpleGetProductsRequest)
+	response := runRequest(t, ph.GetProducts, SimpleGetProductsRequest)
 
 	// asserts response
 	assert.Equal(t, response.Code, http.StatusOK, "status should be 200")

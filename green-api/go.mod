@@ -24,6 +24,7 @@ require (
 )
 
 require (
+	github.com/gorilla/mux v1.8.0
 	github.com/rs/xid v1.4.0
 	github.com/stretchr/testify v1.8.0
 	github.com/zenichi/green-api/pricing-service v0.0.0-00010101000000-000000000000
