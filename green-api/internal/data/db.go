@@ -8,8 +8,8 @@ import (
 )
 
 type ProductData interface {
-	GetProducts(currency string) (Products, error)
-	GetProductById(id int, currency string) (*Product, error)
+	GetProducts(ctx context.Context, currency string) (Products, error)
+	GetProductById(ctx context.Context, id int, currency string) (*Product, error)
 	AddProduct(p *Product) error
 	UpdateProduct(p *Product) error
 	DeleteProduct(id int) error
@@ -27,7 +27,7 @@ func NewProductDB(log *logrus.Entry, rates protos.RateServiceClient) *ProductDB 
 }
 
 // GetProducts fetches and returns all products from data store
-func (db *ProductDB) GetProducts(currency string) (Products, error) {
+func (db *ProductDB) GetProducts(ctx context.Context, currency string) (Products, error) {
 	log := db.log.WithField("layer", "data")
 	log.Info("get products")
 
@@ -35,7 +35,7 @@ func (db *ProductDB) GetProducts(currency string) (Products, error) {
 		return internalDB, nil
 	}
 
-	rate, err := db.getRate(currency)
+	rate, err := db.getRate(ctx, currency)
 	if err != nil {
 		db.log.WithError(err).Info("can not get rates")
 		return nil, err
@@ -51,7 +51,7 @@ func (db *ProductDB) GetProducts(currency string) (Products, error) {
 	return pl, nil
 }
 
-func (db *ProductDB) GetProductById(id int, currency string) (*Product, error) {
+func (db *ProductDB) GetProductById(ctx context.Context, id int, currency string) (*Product, error) {
 	i := findIndexByID(id)
 	if i < 0 {
 		return nil, ErrProductNotFound
@@ -61,7 +61,7 @@ func (db *ProductDB) GetProductById(id int, currency string) (*Product, error) {
 		return internalDB[i], nil
 	}
 
-	rate, err := db.getRate(currency)
+	rate, err := db.getRate(ctx, currency)
 	if err != nil {
 		db.log.WithError(err).Info("can not get rates")
 		return nil, err
@@ -119,9 +119,7 @@ func findIndexByID(id int) int {
 	return -1
 }
 
-func (db *ProductDB) getRate(toCurrency string) (float64, error) {
-	// todo: handle context and currency from request query
-	ctx := context.Background()
+func (db *ProductDB) getRate(ctx context.Context, toCurrency string) (float64, error) {
 	d := &protos.RateRequest{
 		FromCurrency: BaseProductCurrency,
 		ToCurrency:   toCurrency,

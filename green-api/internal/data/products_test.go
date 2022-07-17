@@ -12,7 +12,6 @@ func TestProductMissingNameReturnsError(t *testing.T) {
 		Name:        "",
 		Description: "Spicy Chinese garlic",
 		Price:       1.50,
-		Currency:    "USD",
 		ExternalID:  "G-45646",
 	}
 
@@ -29,7 +28,6 @@ func TestProductPriceLowerThanZeroReturnsError(t *testing.T) {
 		Name:        "Garlic",
 		Description: "Spicy Chinese garlic",
 		Price:       -1.50,
-		Currency:    "USD",
 		ExternalID:  "G-45646",
 	}
 

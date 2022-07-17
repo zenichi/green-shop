@@ -32,7 +32,7 @@ func (ph *Product) GetProducts(rw http.ResponseWriter, r *http.Request) {
 	rw.Header().Add("Content-Type", "application/json")
 
 	// fetch the products from the datastore
-	res, err := ph.data.GetProducts(c)
+	res, err := ph.data.GetProducts(r.Context(), c)
 	if err != nil {
 		ph.log.WithError(err).Error("Unable to get products")
 		// Unexpected error, do not show details to the user
@@ -58,7 +58,7 @@ func (ph *Product) GetSingle(rw http.ResponseWriter, r *http.Request) {
 	rw.Header().Add("Content-Type", "application/json")
 
 	// fetch the product from the datastore
-	p, err := ph.data.GetProductById(id, c)
+	p, err := ph.data.GetProductById(r.Context(), id, c)
 	if err != nil {
 		if err == data.ErrProductNotFound {
 			genericErrorResponse(rw, http.StatusNotFound, "Product not found in the database")
