@@ -30,6 +30,7 @@ func (d *InMemoryProductData) GetProducts() (data.Products, error) {
 }
 func (d *InMemoryProductData) AddProduct(p *data.Product)          {}
 func (d *InMemoryProductData) UpdateProduct(p *data.Product) error { return nil }
+func (d *InMemoryProductData) DeleteProduct(id int) error          { return nil }
 
 func TestGetProductsAsValidJSON(t *testing.T) {
 	// create dummy store

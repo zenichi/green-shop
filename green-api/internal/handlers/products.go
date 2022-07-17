@@ -1,8 +1,11 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
+	"strconv"
 
+	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 	"github.com/zenichi/green-shop/green-api/internal/data"
 	"github.com/zenichi/green-shop/green-api/internal/utils"
@@ -93,8 +96,25 @@ func (ph *Product) UpdateProduct(rw http.ResponseWriter, r *http.Request) {
 
 	rw.WriteHeader(http.StatusOK)
 }
+
+// DeleteProducs handles HttpDelete requests to remove product by given ID param
+func (ph *Product) DeleteProduct(rw http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	idParam := vars["id"]
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		// should never happen as router ensures param is valid
+		log.Fatalf("invalid id: %v", id)
+	}
+
+	err = ph.data.DeleteProduct(id)
+	if err != nil {
+		if err == data.ErrProductNotFound {
+			genericErrorResponse(rw, http.StatusNotFound, "Product not found in the database")
+		} else {
+			ph.log.WithError(err).Error("Unable to delete product")
+			genericErrorResponse(rw, http.StatusInternalServerError, "Product can not be updated.")
 		}
-		genericErrorResponse(rw, http.StatusInternalServerError, m)
 		return
 	}
 

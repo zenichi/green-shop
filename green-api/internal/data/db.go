@@ -11,6 +11,7 @@ type ProductData interface {
 	GetProducts() (Products, error)
 	AddProduct(p *Product)
 	UpdateProduct(p *Product) error
+	DeleteProduct(id int) error
 }
 
 // ProductDB defines methods available on product data
@@ -64,6 +65,18 @@ func (db *ProductDB) UpdateProduct(p *Product) error {
 	}
 
 	internalDB[i] = p
+
+	return nil
+}
+
+// DeleteProduct removes product from data store with the given ID
+func (db *ProductDB) DeleteProduct(id int) error {
+	i := findIndexByID(id)
+	if i < 0 {
+		return ErrProductNotFound
+	}
+
+	internalDB = append(internalDB[:i], internalDB[i+1:]...)
 
 	return nil
 }
