@@ -85,7 +85,13 @@ func (ph *Product) AddProduct(rw http.ResponseWriter, r *http.Request) {
 	// read product from context (it was deserialized and validated in middleware)
 	p := r.Context().Value(KeyDataProduct{}).(*data.Product)
 
-	ph.data.AddProduct(p)
+	err := ph.data.AddProduct(p)
+	if err != nil {
+		ph.log.WithError(err).Error("Unable to add product")
+		genericErrorResponse(rw, http.StatusInternalServerError, "Unable to add product.")
+		return
+	}
+
 	rw.WriteHeader(http.StatusOK)
 }
 

@@ -31,7 +31,7 @@ func (d *InMemoryProductData) GetProducts(currency string) (data.Products, error
 func (d *InMemoryProductData) GetProductById(id int, currency string) (*data.Product, error) {
 	return nil, nil
 }
-func (d *InMemoryProductData) AddProduct(p *data.Product)          {}
+func (d *InMemoryProductData) AddProduct(p *data.Product) error    { return nil }
 func (d *InMemoryProductData) UpdateProduct(p *data.Product) error { return nil }
 func (d *InMemoryProductData) DeleteProduct(id int) error          { return nil }
 

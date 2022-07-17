@@ -10,7 +10,7 @@ import (
 type ProductData interface {
 	GetProducts(currency string) (Products, error)
 	GetProductById(id int, currency string) (*Product, error)
-	AddProduct(p *Product)
+	AddProduct(p *Product) error
 	UpdateProduct(p *Product) error
 	DeleteProduct(id int) error
 }
@@ -74,9 +74,10 @@ func (db *ProductDB) GetProductById(id int, currency string) (*Product, error) {
 }
 
 // AddProduct adds a product to the datastore
-func (db *ProductDB) AddProduct(p *Product) {
+func (db *ProductDB) AddProduct(p *Product) error {
 	p.ID = getNextId()
 	internalDB = append(internalDB, p)
+	return nil
 }
 
 // UpdateProduct replace a product in the datastore with the given item
