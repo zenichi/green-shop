@@ -46,8 +46,8 @@ func main() {
 	mux.Handle("/info", ih)
 	mux.HandleFunc("/products", ph.GetProducts).Methods(http.MethodGet)
 	mux.HandleFunc("/products/{id:[0-9]+}", ph.GetSingle).Methods(http.MethodGet)
-	mux.HandleFunc("/products", ph.AddProduct).Methods(http.MethodPost)
-	mux.HandleFunc("/products", ph.UpdateProduct).Methods(http.MethodPut)
+	mux.Handle("/products", ph.ValidateProduct(http.HandlerFunc(ph.AddProduct))).Methods(http.MethodPost)
+	mux.Handle("/products", ph.ValidateProduct(http.HandlerFunc(ph.UpdateProduct))).Methods(http.MethodPut)
 	mux.HandleFunc("/products/{id:[0-9]+}", ph.DeleteProduct).Methods(http.MethodDelete)
 
 	// create the HttpServer

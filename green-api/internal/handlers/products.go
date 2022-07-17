@@ -11,6 +11,9 @@ import (
 	"github.com/zenichi/green-shop/green-api/internal/utils"
 )
 
+// KeyDataProduct is a key used to store data.Product in context
+type KeyDataProduct struct{}
+
 // Product is a handler for products REST API
 type Product struct {
 	log  *logrus.Entry
@@ -74,20 +77,8 @@ func (ph *Product) GetSingle(rw http.ResponseWriter, r *http.Request) {
 
 // AddProduct handles POST requests to add new products
 func (ph *Product) AddProduct(rw http.ResponseWriter, r *http.Request) {
-	p := &data.Product{}
-
-	err := utils.FromJSON(p, r.Body)
-	if err != nil {
-		ph.log.WithError(err).Error("Unable to deserialize from JSON")
-		genericErrorResponse(rw, http.StatusBadRequest, "Product has invalid structure.")
-		return
-	}
-
-	errors := ph.v.Validate(p)
-	if len(errors) > 0 {
-		validationErrorsResponse(rw, errors)
-		return
-	}
+	// read product from context (it was deserialized and validated in middleware)
+	p := r.Context().Value(KeyDataProduct{}).(*data.Product)
 
 	ph.data.AddProduct(p)
 	rw.WriteHeader(http.StatusOK)
@@ -95,22 +86,10 @@ func (ph *Product) AddProduct(rw http.ResponseWriter, r *http.Request) {
 
 // UpdateProduct handles PUT requests to update products
 func (ph *Product) UpdateProduct(rw http.ResponseWriter, r *http.Request) {
-	p := &data.Product{}
+	// read product from context (it was deserialized and validated in middleware)
+	p := r.Context().Value(KeyDataProduct{}).(*data.Product)
 
-	err := utils.FromJSON(p, r.Body)
-	if err != nil {
-		ph.log.WithError(err).Error("Unable to deserialize from JSON")
-		genericErrorResponse(rw, http.StatusBadRequest, "Product has invalid structure.")
-		return
-	}
-
-	errors := ph.v.Validate(p)
-	if len(errors) > 0 {
-		validationErrorsResponse(rw, errors)
-		return
-	}
-
-	err = ph.data.UpdateProduct(p)
+	err := ph.data.UpdateProduct(p)
 	if err != nil {
 		if err == data.ErrProductNotFound {
 			genericErrorResponse(rw, http.StatusNotFound, "Product not found in the database")

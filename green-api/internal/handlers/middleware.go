@@ -1,11 +1,14 @@
 package handlers
 
 import (
+	"context"
 	"net/http"
 	"time"
 
 	"github.com/rs/xid"
 	"github.com/sirupsen/logrus"
+	"github.com/zenichi/green-shop/green-api/internal/data"
+	"github.com/zenichi/green-shop/green-api/internal/utils"
 )
 
 type ApiMiddleware struct {
@@ -62,4 +65,30 @@ func (w *wrappedResponseWriter) Status() int {
 func (w *wrappedResponseWriter) WriteHeader(statusCode int) {
 	w.status = statusCode
 	w.ResponseWriter.WriteHeader(statusCode)
+}
+
+func (ph *Product) ValidateProduct(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+		p := &data.Product{}
+
+		err := utils.FromJSON(p, r.Body)
+		if err != nil {
+			ph.log.WithError(err).Error("Unable to deserialize from JSON")
+			genericErrorResponse(rw, http.StatusBadRequest, "Product has invalid structure.")
+			return
+		}
+
+		errors := ph.v.Validate(p)
+		if len(errors) > 0 {
+			validationErrorsResponse(rw, errors)
+			return
+		}
+
+		// store product in context, so that handler can retrieve it
+		// without a need to unmarshal/validate request again
+		ctx := context.WithValue(r.Context(), KeyDataProduct{}, p)
+		r = r.WithContext(ctx)
+
+		next.ServeHTTP(rw, r)
+	})
 }
