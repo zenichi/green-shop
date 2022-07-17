@@ -99,15 +99,9 @@ func (ph *Product) UpdateProduct(rw http.ResponseWriter, r *http.Request) {
 
 // DeleteProducs handles HttpDelete requests to remove product by given ID param
 func (ph *Product) DeleteProduct(rw http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	idParam := vars["id"]
-	id, err := strconv.Atoi(idParam)
-	if err != nil {
-		// should never happen as router ensures param is valid
-		log.Fatalf("invalid id: %v", id)
-	}
+	id := getProductIdParam(r)
 
-	err = ph.data.DeleteProduct(id)
+	err := ph.data.DeleteProduct(id)
 	if err != nil {
 		if err == data.ErrProductNotFound {
 			genericErrorResponse(rw, http.StatusNotFound, "Product not found in the database")
@@ -119,4 +113,16 @@ func (ph *Product) DeleteProduct(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	rw.WriteHeader(http.StatusOK)
+}
+
+// getProductIdParam reads product ID URI param and parses it to int
+func getProductIdParam(r *http.Request) int {
+	vars := mux.Vars(r)
+	idParam := vars["id"]
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		// should never happen as router ensures param is valid
+		log.Fatalf("invalid id: %v", id)
+	}
+	return id
 }
