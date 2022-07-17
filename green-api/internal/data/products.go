@@ -2,7 +2,10 @@ package data
 
 import "errors"
 
-var ErrProductNotFound = errors.New("Product not found")
+var (
+	ErrProductNotFound  = errors.New("Product not found")
+	BaseProductCurrency = "USD"
+)
 
 // Product defines structure for an API product
 type Product struct {
@@ -10,7 +13,6 @@ type Product struct {
 	Name        string  `json:"name" validate:"required"`
 	Description string  `json:"description"`
 	Price       float64 `json:"price" validate:"required,gt=0"`
-	Currency    string  `json:"currency" validate:"required,len=3"`
 	ExternalID  string  `json:"externalId" validate:"required"`
 }
 

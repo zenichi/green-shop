@@ -8,8 +8,8 @@ import (
 )
 
 type ProductData interface {
-	GetProducts() (Products, error)
-	GetProductById(id int) (*Product, error)
+	GetProducts(currency string) (Products, error)
+	GetProductById(id int, currency string) (*Product, error)
 	AddProduct(p *Product)
 	UpdateProduct(p *Product) error
 	DeleteProduct(id int) error
@@ -27,11 +27,15 @@ func NewProductDB(log *logrus.Entry, rates protos.RateServiceClient) *ProductDB 
 }
 
 // GetProducts fetches and returns all products from data store
-func (db *ProductDB) GetProducts() (Products, error) {
+func (db *ProductDB) GetProducts(currency string) (Products, error) {
 	log := db.log.WithField("layer", "data")
 	log.Info("get products")
 
-	rate, err := db.getRate()
+	if currency == "" || currency == BaseProductCurrency {
+		return internalDB, nil
+	}
+
+	rate, err := db.getRate(currency)
 	if err != nil {
 		db.log.WithError(err).Info("can not get rates")
 		return nil, err
@@ -47,13 +51,17 @@ func (db *ProductDB) GetProducts() (Products, error) {
 	return pl, nil
 }
 
-func (db *ProductDB) GetProductById(id int) (*Product, error) {
+func (db *ProductDB) GetProductById(id int, currency string) (*Product, error) {
 	i := findIndexByID(id)
 	if i < 0 {
 		return nil, ErrProductNotFound
 	}
 
-	rate, err := db.getRate()
+	if currency == "" || currency == BaseProductCurrency {
+		return internalDB[i], nil
+	}
+
+	rate, err := db.getRate(currency)
 	if err != nil {
 		db.log.WithError(err).Info("can not get rates")
 		return nil, err
@@ -110,12 +118,12 @@ func findIndexByID(id int) int {
 	return -1
 }
 
-func (db *ProductDB) getRate() (float64, error) {
+func (db *ProductDB) getRate(toCurrency string) (float64, error) {
 	// todo: handle context and currency from request query
 	ctx := context.Background()
 	d := &protos.RateRequest{
-		FromCurrency: "USD",
-		ToCurrency:   "EUR",
+		FromCurrency: BaseProductCurrency,
+		ToCurrency:   toCurrency,
 	}
 	rr, err := db.rates.GetRate(ctx, d)
 	return rr.Rate, err
@@ -127,7 +135,6 @@ var internalDB = Products{
 		Name:        "Garlic",
 		Description: "Spicy Chinese garlic",
 		Price:       1.50,
-		Currency:    "USD",
 		ExternalID:  "G-45646",
 	},
 	&Product{
@@ -135,7 +142,6 @@ var internalDB = Products{
 		Name:        "Onion",
 		Description: "Small yellow onion",
 		Price:       1.1,
-		Currency:    "USD",
 		ExternalID:  "O-45234",
 	},
 }

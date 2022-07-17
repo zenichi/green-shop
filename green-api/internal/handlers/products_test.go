@@ -25,13 +25,15 @@ func runRequest(t *testing.T, srv http.HandlerFunc, r *http.Request) *httptest.R
 // InMemoryProductData implements data.ProductData interface
 type InMemoryProductData struct{}
 
-func (d *InMemoryProductData) GetProducts() (data.Products, error) {
+func (d *InMemoryProductData) GetProducts(currency string) (data.Products, error) {
 	return data.Products{&data.Product{ID: 4}}, nil
 }
-func (d *InMemoryProductData) GetProductById(id int) (*data.Product, error) { return nil, nil }
-func (d *InMemoryProductData) AddProduct(p *data.Product)                   {}
-func (d *InMemoryProductData) UpdateProduct(p *data.Product) error          { return nil }
-func (d *InMemoryProductData) DeleteProduct(id int) error                   { return nil }
+func (d *InMemoryProductData) GetProductById(id int, currency string) (*data.Product, error) {
+	return nil, nil
+}
+func (d *InMemoryProductData) AddProduct(p *data.Product)          {}
+func (d *InMemoryProductData) UpdateProduct(p *data.Product) error { return nil }
+func (d *InMemoryProductData) DeleteProduct(id int) error          { return nil }
 
 func TestGetProductsAsValidJSON(t *testing.T) {
 	// create dummy store

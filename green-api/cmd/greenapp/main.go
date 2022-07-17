@@ -43,9 +43,14 @@ func main() {
 	// create the new router and register handlers
 	mux := mux.NewRouter()
 	mux.Use(m.WithLogging)
-	mux.Handle("/info", ih)
-	mux.HandleFunc("/products", ph.GetProducts).Methods(http.MethodGet)
-	mux.HandleFunc("/products/{id:[0-9]+}", ph.GetSingle).Methods(http.MethodGet)
+
+	getR := mux.Methods(http.MethodGet).Subrouter()
+	getR.Handle("/info", ih)
+	getR.HandleFunc("/products/{currency:[A-Z]{3}}", ph.GetProducts)
+	getR.HandleFunc("/products", ph.GetProducts)
+	getR.HandleFunc("/products/{id:[0-9]+}/{currency:[A-Z]{3}}", ph.GetSingle)
+	getR.HandleFunc("/products/{id:[0-9]+}", ph.GetSingle)
+
 	mux.Handle("/products", ph.ValidateProduct(http.HandlerFunc(ph.AddProduct))).Methods(http.MethodPost)
 	mux.Handle("/products", ph.ValidateProduct(http.HandlerFunc(ph.UpdateProduct))).Methods(http.MethodPut)
 	mux.HandleFunc("/products/{id:[0-9]+}", ph.DeleteProduct).Methods(http.MethodDelete)
