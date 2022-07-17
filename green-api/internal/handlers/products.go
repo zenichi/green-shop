@@ -55,6 +55,8 @@ func (ph *Product) getProducts(rw http.ResponseWriter, r *http.Request) {
 		genericErrorResponse(rw, http.StatusInternalServerError, "Products are not available.")
 		return
 	}
+
+	rw.WriteHeader(http.StatusOK)
 }
 
 func (ph *Product) addProduct(rw http.ResponseWriter, r *http.Request) {
@@ -74,4 +76,5 @@ func (ph *Product) addProduct(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	ph.data.AddProduct(p)
+	rw.WriteHeader(http.StatusOK)
 }
