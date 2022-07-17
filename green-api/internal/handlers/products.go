@@ -20,6 +20,7 @@ func NewProduct(log *logrus.Entry, data data.ProductData, v *data.Validator) *Pr
 	return &Product{log, data, v}
 }
 
+// GetProducts handles GET requests to list all products
 func (ph *Product) GetProducts(rw http.ResponseWriter, r *http.Request) {
 	// fetch the products from the datastore
 	res, err := ph.data.GetProducts()
@@ -41,6 +42,7 @@ func (ph *Product) GetProducts(rw http.ResponseWriter, r *http.Request) {
 	rw.WriteHeader(http.StatusOK)
 }
 
+// AddProduct handles POST requests to add new products
 func (ph *Product) AddProduct(rw http.ResponseWriter, r *http.Request) {
 	p := &data.Product{}
 
@@ -58,5 +60,43 @@ func (ph *Product) AddProduct(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	ph.data.AddProduct(p)
+	rw.WriteHeader(http.StatusOK)
+}
+
+// UpdateProduct handles PUT requests to update products
+func (ph *Product) UpdateProduct(rw http.ResponseWriter, r *http.Request) {
+	p := &data.Product{}
+
+	err := utils.FromJSON(p, r.Body)
+	if err != nil {
+		ph.log.WithError(err).Error("Unable to deserialize from JSON")
+		genericErrorResponse(rw, http.StatusBadRequest, "Product has invalid structure.")
+		return
+	}
+
+	errors := ph.v.Validate(p)
+	if len(errors) > 0 {
+		validationErrorsResponse(rw, errors)
+		return
+	}
+
+	err = ph.data.UpdateProduct(p)
+	if err != nil {
+		if err == data.ErrProductNotFound {
+			genericErrorResponse(rw, http.StatusNotFound, "Product not found in the database")
+		} else {
+			ph.log.WithError(err).Error("Unable to update product")
+			genericErrorResponse(rw, http.StatusInternalServerError, "Product can not be updated.")
+		}
+		return
+	}
+
+	rw.WriteHeader(http.StatusOK)
+}
+		}
+		genericErrorResponse(rw, http.StatusInternalServerError, m)
+		return
+	}
+
 	rw.WriteHeader(http.StatusOK)
 }

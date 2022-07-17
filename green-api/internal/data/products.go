@@ -1,5 +1,9 @@
 package data
 
+import "errors"
+
+var ErrProductNotFound = errors.New("Product not found")
+
 // Product defines structure for an API product
 type Product struct {
 	ID          int     `json:"id"`
