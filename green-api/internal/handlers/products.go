@@ -45,6 +45,33 @@ func (ph *Product) GetProducts(rw http.ResponseWriter, r *http.Request) {
 	rw.WriteHeader(http.StatusOK)
 }
 
+// GetProduct handles GET requests to list a signle product
+func (ph *Product) GetSingle(rw http.ResponseWriter, r *http.Request) {
+	id := getProductIdParam(r)
+
+	// fetch the product from the datastore
+	p, err := ph.data.GetProductById(id)
+	if err != nil {
+		if err == data.ErrProductNotFound {
+			genericErrorResponse(rw, http.StatusNotFound, "Product not found in the database")
+		} else {
+			ph.log.WithError(err).Error("Unable to get product")
+			genericErrorResponse(rw, http.StatusInternalServerError, "Product can not be retrieved.")
+		}
+		return
+	}
+
+	// serialize product to JSON
+	err = utils.ToJSON(p, rw)
+	if err != nil {
+		ph.log.WithError(err).Error("Unable to serialize to JSON")
+		genericErrorResponse(rw, http.StatusInternalServerError, "Product is not available.")
+		return
+	}
+
+	rw.WriteHeader(http.StatusOK)
+}
+
 // AddProduct handles POST requests to add new products
 func (ph *Product) AddProduct(rw http.ResponseWriter, r *http.Request) {
 	p := &data.Product{}

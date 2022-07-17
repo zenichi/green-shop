@@ -9,6 +9,7 @@ import (
 
 type ProductData interface {
 	GetProducts() (Products, error)
+	GetProductById(id int) (*Product, error)
 	AddProduct(p *Product)
 	UpdateProduct(p *Product) error
 	DeleteProduct(id int) error
@@ -30,25 +31,38 @@ func (db *ProductDB) GetProducts() (Products, error) {
 	log := db.log.WithField("layer", "data")
 	log.Info("get products")
 
-	ctx := context.Background()
-	d := &protos.RateRequest{
-		FromCurrency: "USD",
-		ToCurrency:   "EUR",
-	}
-	rr, err := db.rates.GetRate(ctx, d)
+	rate, err := db.getRate()
 	if err != nil {
-		log.WithError(err).Info("can not get rates")
+		db.log.WithError(err).Info("can not get rates")
 		return nil, err
 	}
 
 	pl := Products{}
 	for _, p := range internalDB {
 		pc := *p
-		pc.Price = pc.Price * rr.Rate
+		pc.Price = pc.Price * rate
 		pl = append(pl, &pc)
 	}
 
 	return pl, nil
+}
+
+func (db *ProductDB) GetProductById(id int) (*Product, error) {
+	i := findIndexByID(id)
+	if i < 0 {
+		return nil, ErrProductNotFound
+	}
+
+	rate, err := db.getRate()
+	if err != nil {
+		db.log.WithError(err).Info("can not get rates")
+		return nil, err
+	}
+
+	p := *internalDB[i]
+	p.Price = p.Price * rate
+
+	return &p, nil
 }
 
 // AddProduct adds a product to the datastore
@@ -94,6 +108,17 @@ func findIndexByID(id int) int {
 	}
 
 	return -1
+}
+
+func (db *ProductDB) getRate() (float64, error) {
+	// todo: handle context and currency from request query
+	ctx := context.Background()
+	d := &protos.RateRequest{
+		FromCurrency: "USD",
+		ToCurrency:   "EUR",
+	}
+	rr, err := db.rates.GetRate(ctx, d)
+	return rr.Rate, err
 }
 
 var internalDB = Products{

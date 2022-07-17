@@ -28,9 +28,10 @@ type InMemoryProductData struct{}
 func (d *InMemoryProductData) GetProducts() (data.Products, error) {
 	return data.Products{&data.Product{ID: 4}}, nil
 }
-func (d *InMemoryProductData) AddProduct(p *data.Product)          {}
-func (d *InMemoryProductData) UpdateProduct(p *data.Product) error { return nil }
-func (d *InMemoryProductData) DeleteProduct(id int) error          { return nil }
+func (d *InMemoryProductData) GetProductById(id int) (*data.Product, error) { return nil, nil }
+func (d *InMemoryProductData) AddProduct(p *data.Product)                   {}
+func (d *InMemoryProductData) UpdateProduct(p *data.Product) error          { return nil }
+func (d *InMemoryProductData) DeleteProduct(id int) error                   { return nil }
 
 func TestGetProductsAsValidJSON(t *testing.T) {
 	// create dummy store
