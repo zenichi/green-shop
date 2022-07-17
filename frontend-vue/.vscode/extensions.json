@@ -1,0 +1,12 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "syler.sass-indented",
+    "octref.vetur",
+    "EditorConfig.editorconfig",
+    "esbenp.prettier-vscode",
+    "rebornix.project-snippets",
+    "stylelint.vscode-stylelint",
+    "mrmlnc.vscode-scss"
+  ]
+}
