@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
+	"github.com/zenichi/green-shop/green-api/internal/utils"
 )
 
 // Info is a http.Handler
@@ -23,5 +24,10 @@ func NewInfo(log *logrus.Entry) *Info {
 // ServeHTTP is the main entry point for the handler
 func (i *Info) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	rw.WriteHeader(http.StatusOK)
-	rw.Write([]byte(fmt.Sprintf("Server time: %v", time.Now())))
+	rw.Header().Add("Content-Type", "application/json")
+	utils.ToJSON(infoResponse{Message: fmt.Sprintf("Server time: %v", time.Now())}, rw)
+}
+
+type infoResponse struct {
+	Message string
 }
