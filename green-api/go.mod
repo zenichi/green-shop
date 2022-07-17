@@ -10,6 +10,7 @@ require (
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/felixge/httpsnoop v1.0.1 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
@@ -24,6 +25,7 @@ require (
 )
 
 require (
+	github.com/gorilla/handlers v1.5.1
 	github.com/gorilla/mux v1.8.0
 	github.com/rs/xid v1.4.0
 	github.com/stretchr/testify v1.8.0
