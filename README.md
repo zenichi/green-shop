@@ -65,6 +65,7 @@ VueJS website for presenting the Product API information. It consumes Product AP
 
 ## Next steps (todo)
 * API - add postgress DB instead of in memory storage
+* API - add swagger doc
 * All - add docker files 
 * All - add configuration files
 * Front-End - integrate with all endpoints of REST API
