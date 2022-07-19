@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"syscall"
 	"time"
 
 	gohandlers "github.com/gorilla/handlers"
@@ -15,6 +16,7 @@ import (
 	"github.com/zenichi/green-shop/green-api/internal/data"
 	"github.com/zenichi/green-shop/green-api/internal/handlers"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 var serverAddress = flag.String("green-api-addr", "localhost:9081", "the address for the server to listen on, in the form 'host:port'")
@@ -27,7 +29,7 @@ func main() {
 	log.WithField("addr", *serverAddress).Info("initializing server")
 
 	// create rates client for grpc server
-	conn, err := grpc.Dial(*clientAddress, grpc.WithInsecure())
+	conn, err := grpc.Dial(*clientAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Panic(err)
 	}
@@ -81,9 +83,8 @@ func main() {
 	}()
 
 	// track os signals to gracefuly shutdown the server
-	idleConnsClosed := make(chan os.Signal)
-	signal.Notify(idleConnsClosed, os.Interrupt)
-	signal.Notify(idleConnsClosed, os.Kill)
+	idleConnsClosed := make(chan os.Signal, 1)
+	signal.Notify(idleConnsClosed, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 
 	// wait until os.signal received
 	sig := <-idleConnsClosed
@@ -92,5 +93,10 @@ func main() {
 	// wait until current operations complete and shutdown the server
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
 	defer cancel()
-	srv.Shutdown(ctx)
+
+	if err := srv.Shutdown(ctx); err != nil {
+		log.WithError(err).Error("shutdown error")
+	} else {
+		log.Info("gracefully stopped")
+	}
 }

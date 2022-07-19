@@ -25,7 +25,10 @@ func NewInfo(log *logrus.Entry) *Info {
 func (i *Info) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	rw.WriteHeader(http.StatusOK)
 	rw.Header().Add("Content-Type", "application/json")
-	utils.ToJSON(infoResponse{Message: fmt.Sprintf("Server time: %v", time.Now())}, rw)
+	err := utils.ToJSON(infoResponse{Message: fmt.Sprintf("Server time: %v", time.Now())}, rw)
+	if err != nil {
+		i.log.Fatal("serialization error.")
+	}
 }
 
 type infoResponse struct {
