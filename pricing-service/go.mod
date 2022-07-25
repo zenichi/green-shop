@@ -1,4 +1,4 @@
-module github.com/zenichi/green-api/pricing-service
+module github.com/zenichi/green-shop/pricing-service
 
 go 1.18
 
