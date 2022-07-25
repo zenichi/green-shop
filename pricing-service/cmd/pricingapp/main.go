@@ -4,6 +4,8 @@ import (
 	"flag"
 	"net"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/sirupsen/logrus"
 	"github.com/zenichi/green-api/pricing-service/internal/server"
@@ -41,8 +43,21 @@ func main() {
 		os.Exit(1)
 	}
 
-	err = gs.Serve(l)
-	if err != nil {
-		log.WithError(err).Error("Listener shutted down")
-	}
+	go func() {
+		err = gs.Serve(l)
+		if err != nil {
+			log.WithError(err).Error("Listener shutted down")
+			os.Exit(1)
+		}
+	}()
+
+	idleConnsClosed := make(chan os.Signal, 1)
+	signal.Notify(idleConnsClosed, syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP, syscall.SIGQUIT)
+
+	// wait until signal received
+	sig := <-idleConnsClosed
+	log.WithField("signal", sig).Info("gracefully shutting down server")
+
+	gs.GracefulStop()
+	log.Info("server shutted down")
 }
