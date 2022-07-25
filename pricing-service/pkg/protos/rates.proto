@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "github.com/zenichi/green-api/pricing-service/rates";
+option go_package = "github.com/zenichi/green-shop/pricing-service/rates";
 
 service RateService {
     // GetRate returns exchange rate for the given currencies

@@ -8,11 +8,11 @@ import (
 	"syscall"
 
 	"github.com/sirupsen/logrus"
-	"github.com/zenichi/green-api/pricing-service/internal/server"
+	"github.com/zenichi/green-shop/pricing-service/internal/server"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 
-	protos "github.com/zenichi/green-api/pricing-service/pkg/protos/rates"
+	protos "github.com/zenichi/green-shop/pricing-service/pkg/protos/rates"
 )
 
 var serverAddress = flag.String("pricing-service-addr", "localhost:9085", "the address for the server")

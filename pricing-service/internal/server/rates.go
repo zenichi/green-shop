@@ -4,7 +4,7 @@ import (
 	context "context"
 
 	"github.com/sirupsen/logrus"
-	protos "github.com/zenichi/green-api/pricing-service/pkg/protos/rates"
+	protos "github.com/zenichi/green-shop/pricing-service/pkg/protos/rates"
 )
 
 // Rates is a grpc server, it implements methods defined by RateServiceServer
