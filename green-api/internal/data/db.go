@@ -125,7 +125,11 @@ func (db *ProductDB) getRate(ctx context.Context, toCurrency string) (float64, e
 		ToCurrency:   toCurrency,
 	}
 	rr, err := db.rates.GetRate(ctx, d)
-	return rr.Rate, err
+	if err != nil {
+		return 0, err
+	}
+
+	return rr.Rate, nil
 }
 
 var internalDB = Products{
