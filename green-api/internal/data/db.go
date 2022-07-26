@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/sirupsen/logrus"
+	"github.com/zenichi/green-shop/green-api/internal/utils"
 	protos "github.com/zenichi/green-shop/pricing-service/pkg/protos/rates"
 )
 
@@ -44,7 +45,7 @@ func (db *ProductDB) GetProducts(ctx context.Context, currency string) (Products
 	pl := Products{}
 	for _, p := range internalDB {
 		pc := *p
-		pc.Price = pc.Price * rate
+		pc.Price = utils.RoundPrice(pc.Price * rate)
 		pl = append(pl, &pc)
 	}
 
@@ -68,7 +69,7 @@ func (db *ProductDB) GetProductById(ctx context.Context, id int, currency string
 	}
 
 	p := *internalDB[i]
-	p.Price = p.Price * rate
+	p.Price = utils.RoundPrice(p.Price * rate)
 
 	return &p, nil
 }
