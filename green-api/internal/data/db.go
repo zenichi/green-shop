@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/sirupsen/logrus"
-	protos "github.com/zenichi/green-api/pricing-service/pkg/protos/rates"
+	protos "github.com/zenichi/green-shop/pricing-service/pkg/protos/rates"
 )
 
 type ProductData interface {

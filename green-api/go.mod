@@ -5,6 +5,7 @@ go 1.18
 require (
 	github.com/go-playground/validator/v10 v10.11.0
 	github.com/sirupsen/logrus v1.8.1
+	github.com/zenichi/green-shop/pricing-service v0.0.0-20220725194923-fb9400b65694
 	google.golang.org/grpc v1.48.0
 )
 
@@ -29,8 +30,7 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/rs/xid v1.4.0
 	github.com/stretchr/testify v1.8.0
-	github.com/zenichi/green-api/pricing-service v0.0.0-00010101000000-000000000000
-	golang.org/x/sys v0.0.0-20220712014510-0a85c31ab51e // indirect
+	golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f // indirect
 )
 
-replace github.com/zenichi/green-api/pricing-service => ../pricing-service
+replace github.com/zenichi/green-shop/pricing-service => ../pricing-service

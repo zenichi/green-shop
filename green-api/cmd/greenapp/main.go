@@ -12,9 +12,9 @@ import (
 	gohandlers "github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
-	protos "github.com/zenichi/green-api/pricing-service/pkg/protos/rates"
 	"github.com/zenichi/green-shop/green-api/internal/data"
 	"github.com/zenichi/green-shop/green-api/internal/handlers"
+	protos "github.com/zenichi/green-shop/pricing-service/pkg/protos/rates"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
